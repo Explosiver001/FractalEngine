@@ -1,0 +1,19 @@
+{
+  "name": "fractal-escape-attractor",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.2",
+    "typescript": "^5.6.0",
+    "vite": "^7.2.6",
+    "vue-tsc": "^3.1.7"
+  }
+}
