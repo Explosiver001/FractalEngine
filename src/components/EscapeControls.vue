@@ -65,9 +65,7 @@ function onGlobalZoom(e: Event) {
     </div>
 
     <div class="group">
-      <label>
-        Globální zoom
-      </label>
+      <label> Globální zoom </label>
       <input
         type="range"
         min="0.5"
@@ -76,7 +74,10 @@ function onGlobalZoom(e: Event) {
         :value="3.0 / view.scale"
         @input="onGlobalZoom($event)"
       />
-      <small>Myší kolečko zoomuje kolem kurzoru, tento slider mění globální měřítko.</small>
+      <small
+        >Myší kolečko zoomuje kolem kurzoru, tento slider mění globální
+        měřítko.</small
+      >
     </div>
 
     <div class="group">
@@ -112,7 +113,10 @@ function onGlobalZoom(e: Event) {
 
     <div class="group">
       <label>Barevná paleta</label>
-      <select :value="settings.palette" @change="updateSelect('palette', $event)">
+      <select
+        :value="settings.palette"
+        @change="updateSelect('palette', $event)"
+      >
         <option value="classic">Klasická</option>
         <option value="fire">Oheň</option>
         <option value="pastel">Pastel</option>

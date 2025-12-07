@@ -43,14 +43,18 @@ onMounted(() => {
     pan(dx, dy);
   });
 
-  canvas.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    const factor = e.deltaY < 0 ? 0.8 : 1.25;
-    const rect2 = canvas.getBoundingClientRect();
-    const x = e.clientX - rect2.left;
-    const y = e.clientY - rect2.top;
-    zoomAt(x, y, factor);
-  }, { passive: false });
+  canvas.addEventListener(
+    "wheel",
+    (e) => {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 0.8 : 1.25;
+      const rect2 = canvas.getBoundingClientRect();
+      const x = e.clientX - rect2.left;
+      const y = e.clientY - rect2.top;
+      zoomAt(x, y, factor);
+    },
+    { passive: false },
+  );
 });
 </script>
 

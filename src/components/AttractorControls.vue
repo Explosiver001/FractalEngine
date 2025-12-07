@@ -58,19 +58,26 @@ function updateNumber(key: "a" | "b" | "c" | "d", e: Event) {
     </div>
 
     <div class="group">
-      <label>Iterace <span>{{ state.iterations.toLocaleString("cs-CZ") }}</span></label>
+      <label
+        >Iterace
+        <span>{{ state.iterations.toLocaleString("cs-CZ") }}</span></label
+      >
       <input
         type="range"
         min="50000"
         max="500000"
         step="25000"
         :value="state.iterations"
-        @input="state.iterations = Number(($event.target as HTMLInputElement).value)"
+        @input="
+          state.iterations = Number(($event.target as HTMLInputElement).value)
+        "
       />
     </div>
 
     <div class="group">
-      <label>Gamma <span>{{ state.gamma.toFixed(2) }}</span></label>
+      <label
+        >Gamma <span>{{ state.gamma.toFixed(2) }}</span></label
+      >
       <input
         type="range"
         min="0.3"
@@ -82,20 +89,22 @@ function updateNumber(key: "a" | "b" | "c" | "d", e: Event) {
     </div>
 
     <div class="group">
-      <label>Jas (brightness) <span>{{ state.brightness.toFixed(2) }}</span></label>
+      <label
+        >Jas (brightness) <span>{{ state.brightness.toFixed(2) }}</span></label
+      >
       <input
         type="range"
         min="0.5"
         max="3"
         step="0.1"
         :value="state.brightness"
-        @input="state.brightness = Number(($event.target as HTMLInputElement).value)"
+        @input="
+          state.brightness = Number(($event.target as HTMLInputElement).value)
+        "
       />
     </div>
 
-    <button type="button" @click="rerollParams">
-      Náhodný atraktor
-    </button>
+    <button type="button" @click="rerollParams">Náhodný atraktor</button>
   </div>
 </template>
 

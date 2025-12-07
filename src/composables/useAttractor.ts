@@ -15,11 +15,11 @@ export interface AttractorState {
 }
 
 const nicePresets: AttractorParams[] = [
-  { a: 1.4,  b: -2.3, c: 2.4,  d: -2.1 },
-  { a: -1.4, b: 1.6,  c: 1.0,  d: 0.7  },
-  { a: -2.0, b: 0.9,  c: -0.9, d: -1.6 },
-  { a: 1.3,  b: -1.9, c: 2.0,  d: -1.2 },
-  { a: -1.3, b: 2.0,  c: -2.0, d: 0.6  }
+  { a: 1.4, b: -2.3, c: 2.4, d: -2.1 },
+  { a: -1.4, b: 1.6, c: 1.0, d: 0.7 },
+  { a: -2.0, b: 0.9, c: -0.9, d: -1.6 },
+  { a: 1.3, b: -1.9, c: 2.0, d: -1.2 },
+  { a: -1.3, b: 2.0, c: -2.0, d: 0.6 },
 ];
 
 function randomPreset(): AttractorParams {
@@ -31,7 +31,7 @@ export const attractorState = reactive<AttractorState>({
   params: randomPreset(),
   iterations: 250_000,
   gamma: 0.6,
-  brightness: 1.5
+  brightness: 1.5,
 });
 
 export function useAttractor() {
@@ -46,6 +46,6 @@ export function useAttractor() {
   return {
     state: attractorState,
     setParams,
-    rerollParams
+    rerollParams,
   };
 }

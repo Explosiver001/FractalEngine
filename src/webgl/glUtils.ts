@@ -6,7 +6,11 @@ export function createGL(canvas: HTMLCanvasElement): WebGLRenderingContext {
   return gl;
 }
 
-export function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader {
+export function createShader(
+  gl: WebGLRenderingContext,
+  type: number,
+  source: string,
+): WebGLShader {
   const shader = gl.createShader(type);
   if (!shader) throw new Error("Failed to create shader");
   gl.shaderSource(shader, source);
@@ -19,7 +23,11 @@ export function createShader(gl: WebGLRenderingContext, type: number, source: st
   return shader;
 }
 
-export function createProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string): WebGLProgram {
+export function createProgram(
+  gl: WebGLRenderingContext,
+  vsSource: string,
+  fsSource: string,
+): WebGLProgram {
   const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
   const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
   const program = gl.createProgram();
@@ -41,14 +49,7 @@ export function createFullscreenQuad(gl: WebGLRenderingContext): WebGLBuffer {
   const buffer = gl.createBuffer();
   if (!buffer) throw new Error("Failed to create buffer");
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  const vertices = new Float32Array([
-    -1, -1,
-     1, -1,
-    -1,  1,
-    -1,  1,
-     1, -1,
-     1,  1
-  ]);
+  const vertices = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
   gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
   return buffer;
 }

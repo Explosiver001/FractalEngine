@@ -1,6 +1,9 @@
 import { reactive } from "vue";
 import { createGL } from "../webgl/glUtils";
-import { WebGLEscapeRenderer, type EscapeSettings } from "../webgl/WebGLEscapeRenderer";
+import {
+  WebGLEscapeRenderer,
+  type EscapeSettings,
+} from "../webgl/WebGLEscapeRenderer";
 
 export type EscapeMode = "mandelbrot" | "julia";
 
@@ -17,7 +20,7 @@ const escapeState = reactive({
   view: {
     centerX: -0.5,
     centerY: 0.0,
-    scale: 3.0
+    scale: 3.0,
   } as ViewState,
   settings: {
     type: "mandelbrot",
@@ -27,8 +30,8 @@ const escapeState = reactive({
     juliaRe: -0.4,
     juliaIm: 0.6,
     showContours: true,
-    contourStep: 5
-  } as EscapeSettings
+    contourStep: 5,
+  } as EscapeSettings,
 });
 
 export function useEscape() {
@@ -53,8 +56,8 @@ export function useEscape() {
     const vw = escapeState.view.scale;
     const vh = vw * aspect;
 
-    escapeState.view.centerX -= dxPx / canvas.width * vw;
-    escapeState.view.centerY += dyPx / canvas.height * vh;
+    escapeState.view.centerX -= (dxPx / canvas.width) * vw;
+    escapeState.view.centerY += (dyPx / canvas.height) * vh;
 
     render();
   }
@@ -97,7 +100,7 @@ export function useEscape() {
     if (!escapeState.canvas || !escapeState.renderer) return;
     escapeState.renderer.render({
       canvas: escapeState.canvas,
-      view: escapeState.view
+      view: escapeState.view,
     });
   }
 
@@ -107,6 +110,6 @@ export function useEscape() {
     setOptions,
     pan,
     zoomAt,
-    render
+    render,
   };
 }

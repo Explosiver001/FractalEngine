@@ -36,7 +36,10 @@ function renderAttractor() {
   const warmup = 2000;
 
   // průzkum rozsahu
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    maxX = -Infinity,
+    minY = Infinity,
+    maxY = -Infinity;
   for (let i = 0; i < warmup; i++) {
     const nx = Math.sin(a * y) - Math.cos(b * x);
     const ny = Math.sin(c * x) - Math.cos(d * y);
@@ -49,8 +52,8 @@ function renderAttractor() {
   }
 
   const margin = 0.1;
-  const dx = (maxX - minX) || 1.0;
-  const dy = (maxY - minY) || 1.0;
+  const dx = maxX - minX || 1.0;
+  const dy = maxY - minY || 1.0;
   minX -= dx * margin;
   maxX += dx * margin;
   minY -= dy * margin;
@@ -111,7 +114,10 @@ function renderAttractor() {
     const v = hist[i];
     if (v <= 0) continue;
     const n = v / maxVal;
-    const mapped = Math.pow(Math.log(1 + n * brightness) / Math.log(1 + brightness), gamma);
+    const mapped = Math.pow(
+      Math.log(1 + n * brightness) / Math.log(1 + brightness),
+      gamma,
+    );
     const [r, g, b] = palette(mapped);
     const di = i * 4;
     data[di] = r;
@@ -129,10 +135,15 @@ onMounted(() => {
 });
 
 watch(
-  () => ({ ...state.params, iterations: state.iterations, gamma: state.gamma, brightness: state.brightness }),
+  () => ({
+    ...state.params,
+    iterations: state.iterations,
+    gamma: state.gamma,
+    brightness: state.brightness,
+  }),
   () => {
     renderAttractor();
-  }
+  },
 );
 </script>
 
@@ -164,7 +175,7 @@ watch(
   bottom: 10px;
   padding: 4px 8px;
   font-size: 11px;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   border-radius: 4px;
 }
 </style>

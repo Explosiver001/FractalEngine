@@ -58,7 +58,7 @@ export class WebGLEscapeRenderer {
       juliaRe: -0.4,
       juliaIm: 0.6,
       showContours: true,
-      contourStep: 5
+      contourStep: 5,
     };
   }
 
@@ -66,7 +66,10 @@ export class WebGLEscapeRenderer {
     this.settings = { ...this.settings, ...opts };
   }
 
-  render(params: { canvas: HTMLCanvasElement; view: { centerX: number; centerY: number; scale: number } }) {
+  render(params: {
+    canvas: HTMLCanvasElement;
+    view: { centerX: number; centerY: number; scale: number };
+  }) {
     const { canvas, view } = params;
     const gl = this.gl;
 
@@ -82,8 +85,11 @@ export class WebGLEscapeRenderer {
     gl.uniform2f(this.uJuliaC, this.settings.juliaRe, this.settings.juliaIm);
 
     const paletteIndex =
-      this.settings.palette === "fire" ? 1 :
-      this.settings.palette === "pastel" ? 2 : 0;
+      this.settings.palette === "fire"
+        ? 1
+        : this.settings.palette === "pastel"
+          ? 2
+          : 0;
     gl.uniform1i(this.uPalette, paletteIndex);
 
     gl.uniform1i(this.uContourStep, this.settings.contourStep || 1);
