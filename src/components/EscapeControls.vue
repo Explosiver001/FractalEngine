@@ -81,10 +81,6 @@ const globalZoom = computed({
         step="0.1"
         class="w-full accent-teal-300 cursor-pointer"
       />
-
-      <small class="text-gray-300 text-sm">
-        Myší kolečko zoomuje kolem kurzoru, tento slider mění globální měřítko.
-      </small>
     </div>
 
     <!-- Exponent -->
