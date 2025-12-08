@@ -5,14 +5,14 @@ import FractalEscapeCanvas from "../components/FractalEscapeCanvas.vue";
 
 <template>
   <div class="w-full h-full flex">
-    <aside class="w-1/5 min-w-56 h-full p-8 text-white">
+    <!-- Sidebar (kept narrow + frosted) -->
+    <aside class="w-1/5 min-w-56 h-full p-4 rounded-2xl">
       <EscapeControls />
     </aside>
 
-    <section class="grow h-full p-8">
-      <FractalEscapeCanvas />
+    <!-- Main Canvas Area (fills all remaining space) -->
+    <section class="grow h-full p-4 rounded-2xl">
+      <FractalEscapeCanvas class="h-full" />
     </section>
   </div>
 </template>
-
-<style scoped></style>

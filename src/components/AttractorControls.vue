@@ -1,165 +1,136 @@
 <script setup lang="ts">
+import { watch, toRef } from "vue";
 import { useAttractor } from "../composables/useAttractor";
 
 const { state, setParams, rerollParams } = useAttractor();
 
-function updateNumber(key: "a" | "b" | "c" | "d", e: Event) {
-  const val = parseFloat((e.target as HTMLInputElement).value);
-  if (!Number.isNaN(val)) {
-    setParams({ [key]: val } as any);
-  }
-}
+const settings = toRef(state);
+
+// Sync Vue reactive param changes into the fractal engine
+watch(
+  () => settings.value.params,
+  (params) => setParams({ ...params }),
+  { deep: true },
+);
 </script>
 
 <template>
-  <div class="controls">
-    <h2 class="title">Peter de Jong Strange Attractor</h2>
-    <p class="hint">
-      Nelineární fraktál s jednoduchým mapováním:<br />
-      xₙ₊₁ = sin(a·yₙ) − cos(b·xₙ)<br />
-      yₙ₊₁ = sin(c·xₙ) − cos(d·yₙ)
-    </p>
+  <div
+    class="flex flex-col gap-3 text-white rounded-2xl backdrop-blur-md bg-gray-900/80 border border-white/10 shadow-xl p-4"
+  >
+    <!-- Title -->
+    <h2
+      class="text-2xl font-bold tracking-wide bg-gradient-to-r from-teal-300 to-purple-400 bg-clip-text text-transparent drop-shadow-sm"
+    >
+      Peter de Jong Strange Attractor
+    </h2>
 
-    <div class="group">
-      <label>a</label>
+    <!-- a -->
+    <div class="flex flex-col gap-1">
+      <label class="text-teal-200/80 font-medium">Konstanta a</label>
       <input
+        v-model.number="settings.params.a"
         type="number"
         step="0.05"
-        :value="state.params.a"
-        @change="updateNumber('a', $event)"
-      />
-    </div>
-    <div class="group">
-      <label>b</label>
-      <input
-        type="number"
-        step="0.05"
-        :value="state.params.b"
-        @change="updateNumber('b', $event)"
-      />
-    </div>
-    <div class="group">
-      <label>c</label>
-      <input
-        type="number"
-        step="0.05"
-        :value="state.params.c"
-        @change="updateNumber('c', $event)"
-      />
-    </div>
-    <div class="group">
-      <label>d</label>
-      <input
-        type="number"
-        step="0.05"
-        :value="state.params.d"
-        @change="updateNumber('d', $event)"
+        class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-2 py-1 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
       />
     </div>
 
-    <div class="group">
-      <label
-        >Iterace
-        <span>{{ state.iterations.toLocaleString("cs-CZ") }}</span></label
-      >
+    <!-- b -->
+    <div class="flex flex-col gap-1">
+      <label class="text-teal-200/80 font-medium">Konstanta b</label>
       <input
+        v-model.number="settings.params.b"
+        type="number"
+        step="0.05"
+        class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-2 py-1 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
+      />
+    </div>
+
+    <!-- c -->
+    <div class="flex flex-col gap-1">
+      <label class="text-teal-200/80 font-medium">Konstanta c</label>
+      <input
+        v-model.number="settings.params.c"
+        type="number"
+        step="0.05"
+        class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-2 py-1 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
+      />
+    </div>
+
+    <!-- d -->
+    <div class="flex flex-col gap-1">
+      <label class="text-teal-200/80 font-medium">Konstanta d</label>
+      <input
+        v-model.number="settings.params.d"
+        type="number"
+        step="0.05"
+        class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-2 py-1 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
+      />
+    </div>
+
+    <!-- Iterations -->
+    <div class="flex flex-col gap-1">
+      <label class="flex justify-between text-teal-200/80 font-medium">
+        <span>Iterace</span>
+        <span class="text-purple-300">{{
+          settings.iterations.toLocaleString("cs-CZ")
+        }}</span>
+      </label>
+
+      <input
+        v-model.number="settings.iterations"
         type="range"
         min="50000"
         max="500000"
         step="25000"
-        :value="state.iterations"
-        @input="
-          state.iterations = Number(($event.target as HTMLInputElement).value)
-        "
+        class="w-full accent-teal-300 cursor-pointer"
       />
     </div>
 
-    <div class="group">
-      <label
-        >Gamma <span>{{ state.gamma.toFixed(2) }}</span></label
-      >
+    <!-- Gamma -->
+    <div class="flex flex-col gap-1">
+      <label class="flex justify-between text-teal-200/80 font-medium">
+        <span>Gamma</span>
+        <span class="text-purple-300">{{ settings.gamma.toFixed(2) }}</span>
+      </label>
+
       <input
+        v-model.number="settings.gamma"
         type="range"
         min="0.3"
         max="1.5"
         step="0.05"
-        :value="state.gamma"
-        @input="state.gamma = Number(($event.target as HTMLInputElement).value)"
+        class="w-full accent-teal-300 cursor-pointer"
       />
     </div>
 
-    <div class="group">
-      <label
-        >Jas (brightness) <span>{{ state.brightness.toFixed(2) }}</span></label
-      >
+    <!-- Brightness -->
+    <div class="flex flex-col gap-1">
+      <label class="flex justify-between text-teal-200/80 font-medium">
+        <span>Jas</span>
+        <span class="text-purple-300">{{
+          settings.brightness.toFixed(2)
+        }}</span>
+      </label>
+
       <input
+        v-model.number="settings.brightness"
         type="range"
         min="0.5"
         max="3"
         step="0.1"
-        :value="state.brightness"
-        @input="
-          state.brightness = Number(($event.target as HTMLInputElement).value)
-        "
+        class="w-full accent-teal-300 cursor-pointer"
       />
     </div>
 
-    <button type="button" @click="rerollParams">Náhodný atraktor</button>
+    <!-- Button -->
+    <button
+      type="button"
+      @click="rerollParams"
+      class="w-full py-2 rounded-lg text-black font-semibold shadow-lg bg-gradient-to-r from-teal-400 to-purple-500 hover:opacity-90 transition cursor-pointer"
+    >
+      Náhodný atraktor
+    </button>
   </div>
 </template>
-
-<style scoped>
-.controls {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.title {
-  font-size: 14px;
-  margin: 4px 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #bbb;
-}
-
-.hint {
-  font-size: 11px;
-  color: #aaa;
-  line-height: 1.4;
-}
-
-.group {
-  margin-bottom: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-label {
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-input[type="range"],
-input[type="number"] {
-  width: 100%;
-}
-
-button {
-  margin-top: 8px;
-  background: #2d7dff;
-  border: none;
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-button:hover {
-  filter: brightness(1.1);
-}
-</style>

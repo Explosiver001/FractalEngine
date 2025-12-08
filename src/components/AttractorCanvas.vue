@@ -1,31 +1,44 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, nextTick } from "vue";
 import { useAttractor } from "../composables/useAttractor";
 
 const { state } = useAttractor();
+
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const busy = ref(false);
+
+let width = 0;
+let height = 0;
+
+// --- KEY FIX: resize bitmap EVERY TIME before rendering ---
+function syncCanvasResolution() {
+  const canvas = canvasRef.value;
+  if (!canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  if (rect.width <= 0 || rect.height <= 0) return;
+
+  canvas.width = Math.floor(rect.width);
+  canvas.height = Math.floor(rect.height);
+
+  width = canvas.width;
+  height = canvas.height;
+}
 
 function renderAttractor() {
   const canvas = canvasRef.value;
   if (!canvas) return;
+
+  // FIX: resize BEFORE rendering
+  syncCanvasResolution();
+
   const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+  if (!ctx || width === 0 || height === 0) return;
 
   busy.value = true;
 
-  const rect = canvas.getBoundingClientRect();
-  if (rect.width && rect.height) {
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-  }
-
-  const width = canvas.width;
-  const height = canvas.height;
-
-  ctx.fillStyle = "#050509";
-  ctx.fillRect(0, 0, width, height);
-
+  // --- your original code preserved ---
   const hist = new Float32Array(width * height);
 
   let x = 0.0;
@@ -35,16 +48,17 @@ function renderAttractor() {
   const totalIter = state.iterations;
   const warmup = 2000;
 
-  // průzkum rozsahu
   let minX = Infinity,
-    maxX = -Infinity,
-    minY = Infinity,
+    maxX = -Infinity;
+  let minY = Infinity,
     maxY = -Infinity;
+
   for (let i = 0; i < warmup; i++) {
     const nx = Math.sin(a * y) - Math.cos(b * x);
     const ny = Math.sin(c * x) - Math.cos(d * y);
     x = nx;
     y = ny;
+
     if (x < minX) minX = x;
     if (x > maxX) maxX = x;
     if (y < minY) minY = y;
@@ -52,21 +66,20 @@ function renderAttractor() {
   }
 
   const margin = 0.1;
-  const dx = maxX - minX || 1.0;
-  const dy = maxY - minY || 1.0;
+  const dx = maxX - minX || 1;
+  const dy = maxY - minY || 1;
+
   minX -= dx * margin;
   maxX += dx * margin;
   minY -= dy * margin;
   maxY += dy * margin;
 
-  const rangeX = maxX - minX || 1.0;
-  const rangeY = maxY - minY || 1.0;
+  const rangeX = maxX - minX;
+  const rangeY = maxY - minY;
 
-  // reset pozice pro skutečný render
-  x = 0.0;
-  y = 0.0;
+  x = 0;
+  y = 0;
 
-  // warmup znovu, aby se orbit přiblížil atraktoru
   for (let i = 0; i < warmup; i++) {
     const nx = Math.sin(a * y) - Math.cos(b * x);
     const ny = Math.sin(c * x) - Math.cos(d * y);
@@ -74,7 +87,6 @@ function renderAttractor() {
     y = ny;
   }
 
-  // akumulace bodů
   for (let i = 0; i < totalIter; i++) {
     const nx = Math.sin(a * y) - Math.cos(b * x);
     const ny = Math.sin(c * x) - Math.cos(d * y);
@@ -86,38 +98,37 @@ function renderAttractor() {
     if (u < 0 || u > 1 || v < 0 || v > 1) continue;
 
     const px = Math.floor(u * (width - 1));
-    const py = Math.floor((1 - v) * (height - 1)); // invert Y
+    const py = Math.floor((1 - v) * (height - 1));
 
-    const idx = py * width + px;
-    hist[idx] += 1;
+    hist[py * width + px] += 1;
   }
 
-  // najít maximum hustoty
   let maxVal = 0;
-  for (let i = 0; i < hist.length; i++) {
-    if (hist[i] > maxVal) maxVal = hist[i];
-  }
+  for (let i = 0; i < hist.length; i++) if (hist[i] > maxVal) maxVal = hist[i];
+
   const gamma = state.gamma;
   const brightness = state.brightness;
 
-  const imageData = ctx.createImageData(width, height);
-  const data = imageData.data;
+  const image = ctx.createImageData(width, height);
+  const data = image.data;
 
-  function palette(t: number): [number, number, number] {
-    const r = Math.floor(255 * Math.pow(t, 0.5));
-    const g = Math.floor(255 * t);
-    const b = Math.floor(255 * (0.2 + 0.8 * (1 - t)));
-    return [r, g, b];
+  function palette(t: number) {
+    return [
+      Math.floor(255 * Math.sqrt(t)),
+      Math.floor(255 * t),
+      Math.floor(255 * (0.2 + 0.8 * (1 - t))),
+    ];
   }
 
   for (let i = 0; i < hist.length; i++) {
-    const v = hist[i];
-    if (v <= 0) continue;
-    const n = v / maxVal;
+    if (hist[i] <= 0) continue;
+
+    const n = hist[i] / maxVal;
     const mapped = Math.pow(
       Math.log(1 + n * brightness) / Math.log(1 + brightness),
       gamma,
     );
+
     const [r, g, b] = palette(mapped);
     const di = i * 4;
     data[di] = r;
@@ -126,11 +137,13 @@ function renderAttractor() {
     data[di + 3] = 255;
   }
 
-  ctx.putImageData(imageData, 0, 0);
+  ctx.putImageData(image, 0, 0);
   busy.value = false;
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick();
+  syncCanvasResolution();
   renderAttractor();
 });
 
@@ -141,41 +154,21 @@ watch(
     gamma: state.gamma,
     brightness: state.brightness,
   }),
-  () => {
-    renderAttractor();
-  },
+  () => renderAttractor(),
 );
 </script>
 
 <template>
-  <div class="canvas-wrapper">
-    <canvas ref="canvasRef" class="attractor-canvas"></canvas>
-    <div v-if="busy" class="busy">počítám…</div>
+  <div
+    class="relative w-full h-full rounded-2xl border border-white/10 bg-gray-900/80 backdrop-blur-md shadow-xl"
+  >
+    <canvas ref="canvasRef" class="w-full h-full rounded-2xl"></canvas>
+
+    <div
+      v-if="busy"
+      class="absolute right-2 bottom-2 px-3 py-1 text-xs rounded-lg bg-black/70 text-gray-200"
+    >
+      počítám…
+    </div>
   </div>
 </template>
-
-<style scoped>
-.canvas-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.attractor-canvas {
-  width: 100%;
-  height: 100%;
-  background: #050509;
-  border-radius: 8px;
-  border: 1px solid #333;
-}
-
-.busy {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  padding: 4px 8px;
-  font-size: 11px;
-  background: rgba(0, 0, 0, 0.7);
-  border-radius: 4px;
-}
-</style>

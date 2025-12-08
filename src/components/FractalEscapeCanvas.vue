@@ -59,20 +59,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <canvas ref="canvasRef" class="fractal-canvas"></canvas>
+  <div class="w-full h-full flex justify-center">
+    <div
+      class="backdrop-blur-md bg-gray-900/80 rounded-2xl shadow-xl border border-white/10 w-full h-full p-4"
+    >
+      <canvas ref="canvasRef" class="w-full h-full rounded-xl"></canvas>
+    </div>
+  </div>
 </template>
-
-<style scoped>
-.fractal-canvas {
-  width: 100%;
-  height: 100%;
-  background: #000;
-  border-radius: 8px;
-  border: 1px solid #333;
-  cursor: grab;
-}
-
-.fractal-canvas.dragging {
-  cursor: grabbing;
-}
-</style>

@@ -1,121 +1,137 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watch, toRef } from "vue";
 import { useEscape } from "../composables/useEscape";
 
 const { state, setOptions, render } = useEscape();
 
-const settings = computed(() => state.settings);
+const settings = toRef(state.settings);
+
 const view = computed(() => state.view);
 
-function updateSelect(key: "type" | "palette", e: Event) {
-  const value = (e.target as HTMLSelectElement).value;
-  setOptions({ [key]: value } as any);
-}
+watch(
+  () => settings,
+  (newSettings) => setOptions({ ...newSettings.value }),
+  { deep: true },
+);
 
-function updateRange(key: "iterations" | "power" | "contourStep", e: Event) {
-  const value = Number((e.target as HTMLInputElement).value);
-  setOptions({ [key]: value } as any);
-}
+watch(
+  () => view.value.scale,
+  () => render(),
+);
 
-function updateNumber(key: "juliaRe" | "juliaIm", e: Event) {
-  const value = parseFloat((e.target as HTMLInputElement).value);
-  if (!Number.isNaN(value)) {
-    setOptions({ [key]: value } as any);
-  }
-}
-
-function toggleContours(e: Event) {
-  const checked = (e.target as HTMLInputElement).checked;
-  setOptions({ showContours: checked });
-}
-
-function onGlobalZoom(e: Event) {
-  const v = Number((e.target as HTMLInputElement).value);
-  if (v <= 0) return;
-  // slider ~ relative inverse zoom
-  state.view.scale = 3.0 / v;
-  render();
-}
+const globalZoom = computed({
+  get: () => 3.0 / view.value.scale,
+  set: (val: number) => {
+    if (val > 0) {
+      view.value.scale = 3.0 / val;
+    }
+  },
+});
 </script>
 
 <template>
-  <div class="controls">
-    <h2 class="title">Mandelbrot / Julia (WebGL)</h2>
+  <div
+    class="rounded-2xl backdrop-blur-md bg-gray-900/80 border border-white/10 shadow-xl p-6 space-y-6 text-white"
+  >
+    <!-- Title -->
+    <h2
+      class="text-2xl font-bold tracking-wide bg-gradient-to-r from-teal-300 to-purple-400 bg-clip-text text-transparent drop-shadow-sm"
+    >
+      Mandelbrot / Julia
+    </h2>
 
-    <div class="group">
-      <label>Typ</label>
-      <select :value="settings.type" @change="updateSelect('type', $event)">
+    <!-- Type -->
+    <div class="flex flex-col space-y-1">
+      <label class="text-teal-200/80 font-medium">Typ</label>
+
+      <select
+        v-model="settings.type"
+        class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-3 py-2 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-teal-400/70 transition"
+      >
         <option value="mandelbrot">Mandelbrot</option>
         <option value="julia">Julia</option>
       </select>
     </div>
 
-    <div class="group">
-      <label>
-        Iterace
-        <span>{{ settings.iterations }}×</span>
+    <!-- Iterace -->
+    <div class="flex flex-col space-y-1">
+      <label class="flex justify-between text-teal-200/80 font-medium">
+        <span>Iterace</span>
+        <span class="text-purple-300">{{ settings.iterations }}×</span>
       </label>
+
       <input
+        v-model.number="settings.iterations"
         type="range"
         min="20"
         max="500"
-        :value="settings.iterations"
-        @input="updateRange('iterations', $event)"
+        class="w-full accent-teal-300 cursor-pointer"
       />
     </div>
 
-    <div class="group">
-      <label> Globální zoom </label>
+    <!-- Globální zoom -->
+    <div class="flex flex-col space-y-1">
+      <label class="text-teal-200/80 font-medium">Globální zoom</label>
+
       <input
+        v-model.number="globalZoom"
         type="range"
         min="0.5"
         max="5"
         step="0.1"
-        :value="3.0 / view.scale"
-        @input="onGlobalZoom($event)"
+        class="w-full accent-teal-300 cursor-pointer"
       />
-      <small
-        >Myší kolečko zoomuje kolem kurzoru, tento slider mění globální
-        měřítko.</small
-      >
+
+      <small class="text-gray-300 text-sm">
+        Myší kolečko zoomuje kolem kurzoru, tento slider mění globální měřítko.
+      </small>
     </div>
 
-    <div class="group">
-      <label>
-        Exponent k (z^k)
-        <span>{{ settings.power }}</span>
+    <!-- Exponent -->
+    <div class="flex flex-col space-y-1">
+      <label class="flex justify-between text-teal-200/80 font-medium">
+        <span>Exponent k (z^k)</span>
+        <span class="text-purple-300">{{ settings.power }}</span>
       </label>
+
       <input
+        v-model.number="settings.power"
         type="range"
         min="2"
         max="6"
         step="1"
-        :value="settings.power"
-        @input="updateRange('power', $event)"
+        class="w-full accent-teal-300 cursor-pointer"
       />
     </div>
 
-    <div class="group">
-      <label>Julia: konstanta c (re, im)</label>
-      <input
-        type="number"
-        step="0.01"
-        :value="settings.juliaRe"
-        @change="updateNumber('juliaRe', $event)"
-      />
-      <input
-        type="number"
-        step="0.01"
-        :value="settings.juliaIm"
-        @change="updateNumber('juliaIm', $event)"
-      />
+    <!-- Julia konstanta -->
+    <div class="flex flex-col space-y-2" v-if="settings.type === 'julia'">
+      <label class="text-teal-200/80 font-medium">Konstanta c (re, im)</label>
+
+      <div class="flex space-x-3">
+        <input
+          v-model.number="settings.juliaRe"
+          type="number"
+          step="0.01"
+          class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-3 py-2 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
+        />
+
+        <input
+          v-model.number="settings.juliaIm"
+          type="number"
+          step="0.01"
+          class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-3 py-2 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
+        />
+      </div>
     </div>
 
-    <div class="group">
-      <label>Barevná paleta</label>
+    <!-- Palette -->
+    <div class="flex flex-col space-y-1">
+      <label class="text-teal-200/80 font-medium">Barevná paleta</label>
+
       <select
-        :value="settings.palette"
-        @change="updateSelect('palette', $event)"
+        v-model="settings.palette"
+        class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-3 py-2 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-teal-400/70 transition"
       >
         <option value="classic">Klasická</option>
         <option value="fire">Oheň</option>
@@ -123,87 +139,30 @@ function onGlobalZoom(e: Event) {
       </select>
     </div>
 
-    <div class="group">
-      <label class="row">
-        Vrstevnice
+    <!-- Vrstevnice -->
+    <div class="flex flex-col space-y-2">
+      <label
+        class="flex items-center justify-between text-teal-200/80 font-medium"
+      >
+        <span>Vrstevnice</span>
+
         <input
+          v-model="settings.showContours"
           type="checkbox"
-          :checked="settings.showContours"
-          @change="toggleContours($event)"
+          class="w-5 h-5 rounded border-white/20 bg-gray-800/70 text-teal-300 focus:ring-teal-400 cursor-pointer"
         />
       </label>
-      <small>Čára každých N iterací.</small>
-      <label>Interval vrstevnic N</label>
+
+      <small class="text-gray-300 text-sm"> Čára každých N iterací. </small>
+
+      <label class="text-teal-200/80 font-medium">Interval vrstevnic N</label>
+
       <input
+        v-model.number="settings.contourStep"
         type="number"
         min="1"
-        :value="settings.contourStep"
-        @change="updateRange('contourStep', $event)"
+        class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-3 py-2 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
       />
     </div>
-
-    <button type="button" class="render-btn" @click="render">
-      Přepočítat fraktál
-    </button>
   </div>
 </template>
-
-<style scoped>
-.controls {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.title {
-  font-size: 14px;
-  margin: 4px 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #bbb;
-}
-
-.group {
-  margin-bottom: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-label {
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-label.row {
-  flex-direction: row;
-}
-
-input[type="range"],
-input[type="number"],
-select {
-  width: 100%;
-}
-
-small {
-  color: #888;
-  font-size: 11px;
-}
-
-.render-btn {
-  margin-top: 6px;
-  background: #2d7dff;
-  border: none;
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.render-btn:hover {
-  filter: brightness(1.1);
-}
-</style>

@@ -14,17 +14,13 @@ export interface AttractorState {
   brightness: number;
 }
 
-const nicePresets: AttractorParams[] = [
-  { a: 1.4, b: -2.3, c: 2.4, d: -2.1 },
-  { a: -1.4, b: 1.6, c: 1.0, d: 0.7 },
-  { a: -2.0, b: 0.9, c: -0.9, d: -1.6 },
-  { a: 1.3, b: -1.9, c: 2.0, d: -1.2 },
-  { a: -1.3, b: 2.0, c: -2.0, d: 0.6 },
-];
-
 function randomPreset(): AttractorParams {
-  const idx = Math.floor(Math.random() * nicePresets.length);
-  return { ...nicePresets[idx] };
+  return {
+    a: Math.random() * 2,
+    b: (Math.random() - 0.5) * 5,
+    c: (Math.random() - 0.5) * 5,
+    d: (Math.random() - 0.5) * 5,
+  } as AttractorParams;
 }
 
 export const attractorState = reactive<AttractorState>({
@@ -36,7 +32,19 @@ export const attractorState = reactive<AttractorState>({
 
 export function useAttractor() {
   function setParams(p: Partial<AttractorParams>) {
-    attractorState.params = { ...attractorState.params, ...p };
+    const current = attractorState.params;
+    const next = { ...current, ...p };
+
+    // Check if any value changed
+    const changed = Object.keys(next).some(
+      (key) =>
+        next[key as keyof AttractorParams] !==
+        current[key as keyof AttractorParams],
+    );
+
+    if (changed) {
+      attractorState.params = next;
+    }
   }
 
   function rerollParams() {

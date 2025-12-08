@@ -5,14 +5,14 @@ import AttractorCanvas from "../components/AttractorCanvas.vue";
 
 <template>
   <div class="w-full h-full flex">
-    <aside class="w-1/5 min-w-56 h-full p-8 text-white">
+    <!-- Sidebar (same as Escape) -->
+    <aside class="w-1/5 min-w-56 h-full p-4 rounded-2xl">
       <AttractorControls />
     </aside>
 
-    <section class="grow h-full p-8">
-      <AttractorCanvas />
+    <!-- Main Canvas Area (same as Escape) -->
+    <section class="grow h-full p-4 rounded-2xl">
+      <AttractorCanvas class="h-full" />
     </section>
   </div>
 </template>
-
-<style scoped></style>
