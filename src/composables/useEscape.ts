@@ -62,39 +62,39 @@ export function useEscape() {
     render();
   }
 
-  function zoomAt(px: number, py: number, factor: number) {
-    const canvas = escapeState.canvas;
-    if (!canvas) return;
+  function zoomAt(nx: number, ny: number, factor: number) {
+  const view = escapeState.view;
 
-    const W = canvas.width;
-    const H = canvas.height;
-    const aspect = H / W;
+  const aspect = escapeState.canvas
+    ? escapeState.canvas.height / escapeState.canvas.width
+    : 1;
 
-    const vw = escapeState.view.scale;
-    const vh = vw * aspect;
+  const vw = view.scale;
+  const vh = vw * aspect;
 
-    const minX = escapeState.view.centerX - vw / 2;
-    const maxX = escapeState.view.centerX + vw / 2;
-    const minY = escapeState.view.centerY - vh / 2;
-    const maxY = escapeState.view.centerY + vh / 2;
+  const minX = view.centerX - vw / 2;
+  const maxX = view.centerX + vw / 2;
+  const minY = view.centerY - vh / 2;
+  const maxY = view.centerY + vh / 2;
 
-    const nx = px / W;
-    const ny = py / H;
+  // Bod pod kurzorem v komplexní rovině (před zoomem)
+  const cx = minX + nx * (maxX - minX);
+  const cy = maxY - ny * (maxY - minY); // Y je invertovaná
 
-    const cx = minX + nx * (maxX - minX);
-    const cy = maxY - ny * (maxY - minY);
+  // Nový scale
+  const newScale = vw * factor;
+  view.scale = newScale;
 
-    const newScale = escapeState.view.scale * factor;
-    escapeState.view.scale = newScale;
+  const newVw = newScale;
+  const newVh = newVw * aspect;
 
-    const newVw = escapeState.view.scale;
-    const newVh = newVw * aspect;
+  // Nastav nový střed tak, aby bod pod kurzorem zůstal na stejném místě
+  view.centerX = cx - (nx - 0.5) * newVw;
+  view.centerY = cy - (0.5 - ny) * newVh;
 
-    escapeState.view.centerX = cx - (nx - 0.5) * newVw;
-    escapeState.view.centerY = cy - (0.5 - ny) * newVh;
+  render();
+}
 
-    render();
-  }
 
   function render() {
     if (!escapeState.canvas || !escapeState.renderer) return;

@@ -40,21 +40,23 @@ onMounted(() => {
     const dy = e.clientY - lastY;
     lastX = e.clientX;
     lastY = e.clientY;
-    pan(dx, dy);
+    pan(dx, -dy);
   });
 
   canvas.addEventListener(
-    "wheel",
-    (e) => {
-      e.preventDefault();
-      const factor = e.deltaY < 0 ? 0.8 : 1.25;
-      const rect2 = canvas.getBoundingClientRect();
-      const x = e.clientX - rect2.left;
-      const y = e.clientY - rect2.top;
-      zoomAt(x, y, factor);
-    },
-    { passive: false },
-  );
+  "wheel",
+  (e) => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 0.8 : 1.25;
+
+    const rect = canvas.getBoundingClientRect();
+    const nx = (e.clientX - rect.left) / rect.width;  // 0..1
+    const ny = (e.clientY - rect.top) / rect.height;  // 0..1
+
+    zoomAt(nx, ny, factor);
+  },
+  { passive: false },
+);
 });
 </script>
 
