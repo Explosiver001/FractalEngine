@@ -7,24 +7,109 @@ export interface AttractorParams {
   d: number;
 }
 
+export type AttractorFormula = (
+  x: number,
+  y: number,
+  params: AttractorParams,
+) => { x: number; y: number };
+
+interface AttractorDefinition {
+  title: string;
+  formula: AttractorFormula;
+  preset: () => AttractorParams;
+}
+
+const rand = (min: number, max: number) => Math.random() * (max - min) + min;
+
+const deJongPreset = () => ({
+  a: Math.random() * 2,
+  b: rand(-2.5, 2.5),
+  c: rand(-2.5, 2.5),
+  d: rand(-2.5, 2.5),
+});
+
+const wideTrigPreset = () => ({
+  a: rand(-2, 2),
+  b: rand(-3, 3),
+  c: rand(-3, 3),
+  d: rand(-3, 3),
+});
+
+export const attractorDefinitions = {
+  "peter-de-jong": {
+    title: "Peter de Jong (sin - cos)",
+    formula: (x, y, { a, b, c, d }) => ({
+      x: Math.sin(a * y) - Math.cos(b * x),
+      y: Math.sin(c * x) - Math.cos(d * y),
+    }),
+    preset: deJongPreset,
+  },
+  "peter-de-jong-plus": {
+    title: "Peter de Jong (sin + cos)",
+    formula: (x, y, { a, b, c, d }) => ({
+      x: Math.sin(a * y) + Math.cos(b * x),
+      y: Math.sin(c * x) + Math.cos(d * y),
+    }),
+    preset: wideTrigPreset,
+  },
+  "peter-de-jong-cos-sin": {
+    title: "Peter de Jong (cos - sin)",
+    formula: (x, y, { a, b, c, d }) => ({
+      x: Math.cos(a * y) - Math.sin(b * x),
+      y: Math.cos(c * x) - Math.sin(d * y),
+    }),
+    preset: wideTrigPreset,
+  },
+  "peter-de-jong-sin-only": {
+    title: "Peter de Jong (all sine)",
+    formula: (x, y, { a, b, c, d }) => ({
+      x: Math.sin(a * y) - Math.sin(b * x),
+      y: Math.sin(c * x) - Math.sin(d * y),
+    }),
+    preset: wideTrigPreset,
+  },
+  "generalized-trig": {
+    title: "Generalized Trig Map",
+    formula: (x, y, { a, b, c, d }) => ({
+      x: Math.sin(a * y) + Math.sin(b * x),
+      y: Math.cos(c * x) + Math.cos(d * y),
+    }),
+    preset: wideTrigPreset,
+  },
+  clifford: {
+    title: "Clifford Attractor",
+    formula: (x, y, { a, b, c, d }) => ({
+      x: Math.sin(a * y) + c * Math.cos(a * x),
+      y: Math.sin(b * x) + d * Math.cos(b * y),
+    }),
+    preset: () => ({
+      a: rand(-1.5, 1.5),
+      b: rand(-1.5, 1.5),
+      c: rand(-1.5, 1.5),
+      d: rand(-1.5, 1.5),
+    }),
+  },
+} satisfies Record<string, AttractorDefinition>;
+
+export type AttractorType = keyof typeof attractorDefinitions;
+
 export interface AttractorState {
+  type: AttractorType;
   params: AttractorParams;
   iterations: number;
   gamma: number;
   brightness: number;
 }
 
-function randomPreset(): AttractorParams {
-  return {
-    a: Math.random() * 2,
-    b: (Math.random() - 0.5) * 5,
-    c: (Math.random() - 0.5) * 5,
-    d: (Math.random() - 0.5) * 5,
-  } as AttractorParams;
+function randomPreset(type: AttractorType): AttractorParams {
+  return attractorDefinitions[type].preset();
 }
 
+const defaultType: AttractorType = "peter-de-jong";
+
 export const attractorState = reactive<AttractorState>({
-  params: randomPreset(),
+  type: defaultType,
+  params: randomPreset(defaultType),
   iterations: 250_000,
   gamma: 0.6,
   brightness: 1.5,
@@ -47,12 +132,20 @@ export function useAttractor() {
     }
   }
 
+  function setType(type: AttractorType) {
+    if (attractorState.type === type) return;
+
+    attractorState.type = type;
+    attractorState.params = randomPreset(type);
+  }
+
   function rerollParams() {
-    attractorState.params = randomPreset();
+    attractorState.params = randomPreset(attractorState.type);
   }
 
   return {
     state: attractorState,
+    setType,
     setParams,
     rerollParams,
   };

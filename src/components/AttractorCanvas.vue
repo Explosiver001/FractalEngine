@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref, watch, nextTick } from "vue";
-import { useAttractor } from "../composables/useAttractor";
+import {
+  attractorDefinitions,
+  type AttractorFormula,
+  useAttractor,
+} from "../composables/useAttractor";
 
 const { state } = useAttractor();
 
@@ -48,14 +52,16 @@ function renderAttractor() {
   const totalIter = state.iterations;
   const warmup = 2000;
 
+  const nextPoint: AttractorFormula = (currX: number, currY: number) =>
+    attractorDefinitions[state.type].formula(currX, currY, { a, b, c, d });
+
   let minX = Infinity,
     maxX = -Infinity;
   let minY = Infinity,
     maxY = -Infinity;
 
   for (let i = 0; i < warmup; i++) {
-    const nx = Math.sin(a * y) - Math.cos(b * x);
-    const ny = Math.sin(c * x) - Math.cos(d * y);
+    const { x: nx, y: ny } = nextPoint(x, y);
     x = nx;
     y = ny;
 
@@ -81,15 +87,13 @@ function renderAttractor() {
   y = 0;
 
   for (let i = 0; i < warmup; i++) {
-    const nx = Math.sin(a * y) - Math.cos(b * x);
-    const ny = Math.sin(c * x) - Math.cos(d * y);
+    const { x: nx, y: ny } = nextPoint(x, y);
     x = nx;
     y = ny;
   }
 
   for (let i = 0; i < totalIter; i++) {
-    const nx = Math.sin(a * y) - Math.cos(b * x);
-    const ny = Math.sin(c * x) - Math.cos(d * y);
+    const { x: nx, y: ny } = nextPoint(x, y);
     x = nx;
     y = ny;
 
@@ -149,6 +153,7 @@ onMounted(async () => {
 
 watch(
   () => ({
+    type: state.type,
     ...state.params,
     iterations: state.iterations,
     gamma: state.gamma,
