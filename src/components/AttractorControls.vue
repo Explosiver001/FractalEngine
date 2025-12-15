@@ -1,16 +1,34 @@
 <script setup lang="ts">
-import { watch, toRef } from "vue";
-import { useAttractor } from "../composables/useAttractor";
+import { computed, watch, toRef } from "vue";
+import {
+  attractorDefinitions,
+  useAttractor,
+  type AttractorType,
+} from "../composables/useAttractor";
 
-const { state, setParams, rerollParams } = useAttractor();
+const { state, setParams, setType, rerollParams } = useAttractor();
 
 const settings = toRef(state);
+
+const attractorOptions = Object.entries(attractorDefinitions).map(
+  ([value, def]) => ({
+    value: value as AttractorType,
+    label: def.title,
+  }),
+);
+
+const selectedTitle = computed(() => attractorDefinitions[settings.value.type].title);
 
 // Sync Vue reactive param changes into the fractal engine
 watch(
   () => settings.value.params,
   (params) => setParams({ ...params }),
   { deep: true },
+);
+
+watch(
+  () => settings.value.type,
+  (type) => setType(type),
 );
 </script>
 
@@ -22,8 +40,25 @@ watch(
     <h2
       class="text-2xl font-bold tracking-wide bg-gradient-to-r from-teal-300 to-purple-400 bg-clip-text text-transparent drop-shadow-sm"
     >
-      Peter de Jong Strange Attractor
+      {{ selectedTitle }}
     </h2>
+
+    <!-- Attractor Type -->
+    <div class="flex flex-col gap-1">
+      <label class="text-teal-200/80 font-medium">Typ attractoru</label>
+      <select
+        v-model="settings.type"
+        class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-2 py-2 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition cursor-pointer"
+      >
+        <option
+          v-for="option in attractorOptions"
+          :key="option.value"
+          :value="option.value"
+        >
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
 
     <!-- a -->
     <div class="flex flex-col gap-1">
