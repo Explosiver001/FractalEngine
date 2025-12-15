@@ -120,18 +120,41 @@ const globalZoom = computed({
       </div>
     </div>
 
-    <!-- Palette -->
-    <div class="flex flex-col space-y-1">
-      <label class="text-teal-200/80 font-medium">Barevná paleta</label>
+    <!-- Barvy -->
+    <div class="flex flex-col space-y-2">
+      <label class="text-teal-200/80 font-medium">Barvy přechodu</label>
 
-      <select
-        v-model="settings.palette"
-        class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-3 py-2 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-teal-400/70 transition"
-      >
-        <option value="classic">Klasická</option>
-        <option value="fire">Oheň</option>
-        <option value="pastel">Pastel</option>
-      </select>
+      <div class="flex items-center gap-3">
+        <div class="flex flex-col text-sm text-gray-300 gap-1">
+          <span>Začátek</span>
+          <input
+            v-model="settings.colorA"
+            type="color"
+            class="w-20 h-10 bg-transparent border border-white/10 rounded-lg cursor-pointer"
+          />
+        </div>
+
+        <div class="flex flex-col text-sm text-gray-300 gap-1">
+          <span>Konec</span>
+          <input
+            v-model="settings.colorB"
+            type="color"
+            class="w-20 h-10 bg-transparent border border-white/10 rounded-lg cursor-pointer"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col space-y-1">
+        <label class="flex items-center justify-between text-teal-200/80 font-medium">
+          <span>Barva atraktoru</span>
+          <span class="text-sm text-gray-300">(vnitřek fraktálu)</span>
+        </label>
+        <input
+          v-model="settings.attractorColor"
+          type="color"
+          class="w-24 h-10 bg-transparent border border-white/10 rounded-lg cursor-pointer"
+        />
+      </div>
     </div>
 
     <!-- Vrstevnice -->
