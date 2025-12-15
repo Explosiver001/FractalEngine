@@ -116,15 +116,30 @@ function renderAttractor() {
 
   const gamma = attractorState.value.gamma;
   const brightness = attractorState.value.brightness;
+  const { colorA, colorB } = attractorState.value;
+
+  function hexToRgb(hex: string): [number, number, number] {
+    const clean = hex.replace("#", "");
+    if (clean.length !== 6) return [255, 255, 255];
+
+    return [
+      parseInt(clean.slice(0, 2), 16),
+      parseInt(clean.slice(2, 4), 16),
+      parseInt(clean.slice(4, 6), 16),
+    ];
+  }
+
+  const rgbA = hexToRgb(colorA);
+  const rgbB = hexToRgb(colorB);
 
   const image = ctx.createImageData(width.value, height.value);
   const data = image.data;
 
   function palette(t: number) {
     return [
-      Math.floor(255 * Math.sqrt(t)),
-      Math.floor(255 * t),
-      Math.floor(255 * (0.2 + 0.8 * (1 - t))),
+      Math.floor(rgbA[0] + (rgbB[0] - rgbA[0]) * t),
+      Math.floor(rgbA[1] + (rgbB[1] - rgbA[1]) * t),
+      Math.floor(rgbA[2] + (rgbB[2] - rgbA[2]) * t),
     ];
   }
 

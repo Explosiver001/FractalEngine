@@ -116,6 +116,31 @@ const selectedTitle = computed(
       />
     </div>
 
+    <!-- Colors -->
+    <div class="flex flex-col gap-2">
+      <label class="text-teal-200/80 font-medium">Barvy attractoru</label>
+
+      <div class="flex items-center gap-3">
+        <div class="flex flex-col text-sm text-gray-300 gap-1">
+          <span>Primární</span>
+          <input
+            v-model="attractorState.colorA"
+            type="color"
+            class="w-20 h-10 bg-transparent border border-white/10 rounded-lg cursor-pointer"
+          />
+        </div>
+
+        <div class="flex flex-col text-sm text-gray-300 gap-1">
+          <span>Sekundární</span>
+          <input
+            v-model="attractorState.colorB"
+            type="color"
+            class="w-20 h-10 bg-transparent border border-white/10 rounded-lg cursor-pointer"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- Gamma -->
     <div class="flex flex-col gap-1">
       <label class="flex justify-between text-teal-200/80 font-medium">

@@ -2,7 +2,10 @@
 import { ref } from "vue";
 import EscapeControls from "../components/EscapeControls.vue";
 import FractalEscapeCanvas from "../components/FractalEscapeCanvas.vue";
-import type { EscapeSettings } from "../webgl/WebGLEscapeRenderer";
+import {
+  type EscapeSettings,
+  createEscapeSettings,
+} from "../webgl/WebGLEscapeRenderer";
 
 interface ViewState {
   centerX: number;
@@ -10,16 +13,7 @@ interface ViewState {
   scale: number;
 }
 
-const escapeSettings = ref<EscapeSettings>({
-  type: "mandelbrot",
-  iterations: 200,
-  power: 2,
-  palette: "classic",
-  juliaRe: -0.4,
-  juliaIm: 0.6,
-  showContours: true,
-  contourStep: 5,
-});
+const escapeSettings = ref<EscapeSettings>(createEscapeSettings());
 
 const viewState = ref<ViewState>({
   centerX: -0.5,

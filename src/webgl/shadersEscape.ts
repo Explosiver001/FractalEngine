@@ -15,42 +15,11 @@ uniform int u_maxIter;
 uniform int u_power;
 uniform int u_type; // 0 = Mandelbrot, 1 = Julia
 uniform vec2 u_juliaC;
-uniform int u_palette;
+uniform vec3 u_colorA;
+uniform vec3 u_colorB;
+uniform vec3 u_attractorColor;
 uniform bool u_showContours;
 uniform int u_contourStep;
-
-vec3 paletteClassic(float t) {
-  return vec3(
-    0.12 + 0.78 * t,
-    0.12 + 0.3 * t,
-    0.3 + 0.67 * t
-  );
-}
-
-vec3 paletteFire(float t) {
-  return vec3(
-    1.0,
-    0.4 + 0.6 * t,
-    0.1 + 0.7 * t
-  );
-}
-
-vec3 palettePastel(float t) {
-  return vec3(
-    0.8 + 0.15 * t,
-    0.6 + 0.3 * t,
-    0.85
-  );
-}
-
-vec3 getPalette(float t, int palette) {
-  if (palette == 1) {
-    return paletteFire(t);
-  } else if (palette == 2) {
-    return palettePastel(t);
-  }
-  return paletteClassic(t);
-}
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
@@ -115,7 +84,7 @@ void main() {
   }
 
   if (iter >= maxIter) {
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    gl_FragColor = vec4(u_attractorColor, 1.0);
     return;
   }
 
@@ -128,7 +97,7 @@ void main() {
   }
 
   float t = float(iter) / float(maxIter);
-  vec3 col = getPalette(t, u_palette);
+  vec3 col = mix(u_colorA, u_colorB, t);
   gl_FragColor = vec4(col, 1.0);
 }
 `;

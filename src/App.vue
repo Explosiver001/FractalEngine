@@ -9,6 +9,9 @@ import { RouterView } from "vue-router";
     <div class="grow w-full">
       <RouterView class="w-full h-full"></RouterView>
     </div>
+    <footer class="w-full py-4 text-center text-sm text-slate-300 border-t border-white/5">
+      © 2024 Fractal Engine. All rights reserved.
+    </footer>
   </main>
 </template>
 
