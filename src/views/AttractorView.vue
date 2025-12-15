@@ -1,9 +1,11 @@
 <script setup lang="ts">
+// Page that visualizes chaotic attractors drawn on a 2D canvas.
 import { ref, watch } from "vue";
 import AttractorControls from "../components/AttractorControls.vue";
 import AttractorCanvas from "../components/AttractorCanvas.vue";
 import { createDefaultAttractorState, randomPreset } from "../attractors";
 
+// Central reactive state shared between controls and renderer.
 const attractorState = ref(createDefaultAttractorState());
 
 watch(

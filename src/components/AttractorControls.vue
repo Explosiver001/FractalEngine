@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Form inputs for picking an attractor formula and tweaking its parameters.
 import { computed, type PropType } from "vue";
 import {
   attractorDefinitions,
@@ -6,6 +7,7 @@ import {
   type AttractorType,
 } from "../attractors";
 
+// v-model binding allows the parent view and canvas to read/write the same state.
 const attractorState = defineModel("state", {
   type: Object as PropType<AttractorState>,
   required: true,
@@ -13,6 +15,7 @@ const attractorState = defineModel("state", {
 
 const emit = defineEmits<{ (event: "reroll"): void }>();
 
+// Build human-friendly options from the attractor definitions list.
 const attractorOptions = Object.entries(attractorDefinitions).map(
   ([value, def]) => ({
     value: value as AttractorType,

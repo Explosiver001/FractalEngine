@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Form that edits the uniforms used by the WebGL escape-time shader.
 import { computed, type PropType } from "vue";
 import type { EscapeSettings } from "../webgl/WebGLEscapeRenderer";
 
@@ -8,6 +9,7 @@ interface ViewState {
   scale: number;
 }
 
+// Two-way bindings keep the parent view and this form synchronized.
 const settings = defineModel("settings", {
   type: Object as PropType<EscapeSettings>,
   required: true,
@@ -18,6 +20,7 @@ const view = defineModel("view", {
   required: true,
 });
 
+// Present a more intuitive zoom slider that manipulates the view's scale internally.
 const globalZoom = computed({
   get: () => 3.0 / view.value.scale,
   set: (val: number) => {

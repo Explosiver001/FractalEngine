@@ -1,3 +1,4 @@
+// Vertex shader simply outputs a fullscreen quad for the fragment shader to cover.
 export const escapeVS = `
 attribute vec2 a_position;
 void main() {
@@ -5,6 +6,7 @@ void main() {
 }
 `;
 
+// Fragment shader implementing escape-time coloring for Mandelbrot/Julia sets.
 export const escapeFS = `
 precision highp float;
 

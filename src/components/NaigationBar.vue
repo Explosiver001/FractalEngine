@@ -64,10 +64,12 @@
 </template>
 
 <script setup lang="ts">
+// Responsive navigation shared across all views.
 import { ref } from "vue";
 
 const open = ref(false);
 
+// Labels and routes are defined here so both desktop and mobile menus stay in sync.
 const navItems = [
   { label: "Mandelbrot / Julia", to: { name: "mandelbrot-julia" } },
   { label: "Atraktory", to: { name: "attractors" } },

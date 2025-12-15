@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+// Static page that explains the purpose and controls of the Fractal Engine app.
+</script>
 
 <template>
   <div class="min-h-full w-full flex justify-center items-start">

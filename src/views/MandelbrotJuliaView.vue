@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Page that renders Mandelbrot or Julia sets and exposes settings for the shader.
 import { ref } from "vue";
 import EscapeControls from "../components/EscapeControls.vue";
 import FractalEscapeCanvas from "../components/FractalEscapeCanvas.vue";
@@ -13,6 +14,7 @@ interface ViewState {
   scale: number;
 }
 
+// All shader uniforms are stored in reactive settings to keep the renderer in sync.
 const escapeSettings = ref<EscapeSettings>(createEscapeSettings());
 
 const viewState = ref<ViewState>({

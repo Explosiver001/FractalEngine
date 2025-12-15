@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// WebGL-powered canvas that draws Mandelbrot/Julia sets based on the current view.
 import { onMounted, ref, watch, type PropType } from "vue";
 import { createGL } from "../webgl/glUtils";
 import {
@@ -12,6 +13,7 @@ interface ViewState {
   scale: number;
 }
 
+// Two-way bindings keep canvas rendering in sync with the control panel.
 const settings = defineModel("settings", {
   type: Object as PropType<EscapeSettings>,
   required: true,
@@ -25,6 +27,7 @@ const view = defineModel("view", {
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const renderer = ref<WebGLEscapeRenderer | null>(null);
 
+// Track drag gestures for panning.
 let dragging = false;
 let lastX = 0;
 let lastY = 0;
@@ -38,6 +41,7 @@ function render() {
   });
 }
 
+// Initialize the WebGL context and first render.
 function setupCanvas() {
   const canvas = canvasRef.value;
   if (!canvas) return;
@@ -54,6 +58,7 @@ function setupCanvas() {
   render();
 }
 
+// Move the viewport by pixel delta, respecting aspect ratio.
 function pan(dxPx: number, dyPx: number) {
   const canvas = canvasRef.value;
   if (!canvas) return;
@@ -67,6 +72,7 @@ function pan(dxPx: number, dyPx: number) {
   render();
 }
 
+// Zoom relative to a normalized cursor position to give intuitive focus.
 function zoomAt(nx: number, ny: number, factor: number) {
   const aspect = canvasRef.value
     ? canvasRef.value.height / canvasRef.value.width
@@ -101,6 +107,7 @@ onMounted(() => {
   const canvas = canvasRef.value;
   if (!canvas) return;
 
+  // Panning is driven by drag gestures captured on the canvas element.
   canvas.addEventListener("mousedown", (e) => {
     dragging = true;
     lastX = e.clientX;

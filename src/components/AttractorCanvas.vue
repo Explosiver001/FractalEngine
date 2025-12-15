@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// 2D canvas renderer for iterated chaotic attractors.
 import { computed, onMounted, ref, watch, nextTick, type PropType } from "vue";
 import {
   attractorDefinitions,
@@ -6,6 +7,7 @@ import {
   type AttractorState,
 } from "../attractors";
 
+// Shared state passed in from the view and updated via the control panel.
 const attractorState = defineModel("state", {
   type: Object as PropType<AttractorState>,
   required: true,
@@ -21,6 +23,7 @@ const selectedDefinition = computed(
   () => attractorDefinitions[attractorState.value.type],
 );
 
+// Make the canvas pixel buffer follow the displayed size so the image stays sharp.
 function syncCanvasResolution() {
   const canvas = canvasRef.value;
   if (!canvas) return;
@@ -36,6 +39,7 @@ function syncCanvasResolution() {
   height.value = canvas.height;
 }
 
+// Compute the histogram of visited pixels and paint it using the configured palette.
 function renderAttractor() {
   const canvas = canvasRef.value;
   if (!canvas) return;
@@ -64,6 +68,7 @@ function renderAttractor() {
   let minY = Infinity,
     maxY = -Infinity;
 
+  // Warmup iterations discard the transient part of the orbit and measure extents.
   for (let i = 0; i < warmup; i++) {
     const { x: nx, y: ny } = nextPoint(x, y);
     x = nx;
@@ -90,12 +95,14 @@ function renderAttractor() {
   x = 0;
   y = 0;
 
+  // Run another warmup without tracking bounds to settle on the attractor.
   for (let i = 0; i < warmup; i++) {
     const { x: nx, y: ny } = nextPoint(x, y);
     x = nx;
     y = ny;
   }
 
+  // Histogram how often each pixel gets visited to capture density variations.
   for (let i = 0; i < totalIter; i++) {
     const { x: nx, y: ny } = nextPoint(x, y);
     x = nx;

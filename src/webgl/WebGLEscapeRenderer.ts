@@ -1,3 +1,4 @@
+// WebGL helper that draws Mandelbrot/Julia sets using a fragment shader.
 import { createProgram, createFullscreenQuad } from "./glUtils";
 import { escapeVS, escapeFS } from "./shadersEscape";
 
@@ -119,6 +120,7 @@ export class WebGLEscapeRenderer {
       this.hexToRgb(this.settings.attractorColor),
     );
 
+    // Contour rendering is optional: we still pass a sane default to avoid divide-by-zero.
     gl.uniform1i(this.uContourStep, this.settings.contourStep || 1);
     gl.uniform1i(this.uShowContours, this.settings.showContours ? 1 : 0);
 

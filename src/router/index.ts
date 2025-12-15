@@ -1,5 +1,6 @@
 import { createWebHistory, createRouter } from "vue-router";
 
+// Three simple routes: fractal explorer, attractors playground and about page.
 const routes = [
   {
     path: "/",

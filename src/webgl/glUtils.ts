@@ -1,3 +1,4 @@
+// Create and validate a WebGL context for the given canvas element.
 export function createGL(canvas: HTMLCanvasElement): WebGLRenderingContext {
   const gl = canvas.getContext("webgl");
   if (!gl) {
@@ -6,6 +7,7 @@ export function createGL(canvas: HTMLCanvasElement): WebGLRenderingContext {
   return gl;
 }
 
+// Compile a shader and fail loudly so debugging stays straightforward.
 export function createShader(
   gl: WebGLRenderingContext,
   type: number,
@@ -23,6 +25,7 @@ export function createShader(
   return shader;
 }
 
+// Link a shader program from the provided vertex and fragment sources.
 export function createProgram(
   gl: WebGLRenderingContext,
   vsSource: string,
@@ -45,6 +48,7 @@ export function createProgram(
   return program;
 }
 
+// Build a buffer containing two triangles that cover the entire viewport.
 export function createFullscreenQuad(gl: WebGLRenderingContext): WebGLBuffer {
   const buffer = gl.createBuffer();
   if (!buffer) throw new Error("Failed to create buffer");

@@ -1,3 +1,4 @@
+// Parameter set for the attractor formulas.
 export interface AttractorParams {
   a: number;
   b: number;
@@ -5,18 +6,21 @@ export interface AttractorParams {
   d: number;
 }
 
+// Each formula maps a point to the next point in the attractor sequence.
 export type AttractorFormula = (
   x: number,
   y: number,
   params: AttractorParams,
 ) => { x: number; y: number };
 
+// Describes how to render and seed a specific attractor variant.
 interface AttractorDefinition {
   title: string;
   formula: AttractorFormula;
   preset: () => AttractorParams;
 }
 
+// Helper to generate random coefficients within a range.
 const rand = (min: number, max: number) => Math.random() * (max - min) + min;
 
 const deJongPreset = () => ({
@@ -33,6 +37,7 @@ const wideTrigPreset = () => ({
   d: rand(-3, 3),
 });
 
+// Collection of supported formulas along with their preset generators.
 export const attractorDefinitions = {
   "peter-de-jong": {
     title: "Peter de Jong (sin - cos)",
@@ -101,10 +106,12 @@ export interface AttractorState {
   colorB: string;
 }
 
+// Get a new randomized parameter set for a given attractor type.
 export function randomPreset(type: AttractorType): AttractorParams {
   return attractorDefinitions[type].preset();
 }
 
+// Default UI state used when the app first loads.
 export function createDefaultAttractorState(): AttractorState {
   const defaultType: AttractorType = "peter-de-jong";
   return {
