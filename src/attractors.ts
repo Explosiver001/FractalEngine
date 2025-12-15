@@ -97,6 +97,8 @@ export interface AttractorState {
   iterations: number;
   gamma: number;
   brightness: number;
+  colorA: string;
+  colorB: string;
 }
 
 export function randomPreset(type: AttractorType): AttractorParams {
@@ -111,5 +113,7 @@ export function createDefaultAttractorState(): AttractorState {
     iterations: 250_000,
     gamma: 0.6,
     brightness: 1.5,
+    colorA: "#38bdf8",
+    colorB: "#a855f7",
   };
 }

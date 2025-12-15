@@ -2,17 +2,34 @@ import { createProgram, createFullscreenQuad } from "./glUtils";
 import { escapeVS, escapeFS } from "./shadersEscape";
 
 export type EscapeType = "mandelbrot" | "julia";
-export type EscapePalette = "classic" | "fire" | "pastel";
-
 export interface EscapeSettings {
   type: EscapeType;
   iterations: number;
   power: number;
-  palette: EscapePalette;
+  colorA: string;
+  colorB: string;
+  attractorColor: string;
   juliaRe: number;
   juliaIm: number;
   showContours: boolean;
   contourStep: number;
+}
+
+export const DEFAULT_ESCAPE_SETTINGS: EscapeSettings = {
+  type: "mandelbrot",
+  iterations: 200,
+  power: 2,
+  colorA: "#38bdf8",
+  colorB: "#a855f7",
+  attractorColor: "#0b1021",
+  juliaRe: -0.4,
+  juliaIm: 0.6,
+  showContours: true,
+  contourStep: 5,
+};
+
+export function createEscapeSettings(): EscapeSettings {
+  return { ...DEFAULT_ESCAPE_SETTINGS };
 }
 
 export class WebGLEscapeRenderer {
@@ -27,7 +44,9 @@ export class WebGLEscapeRenderer {
   private uPower: WebGLUniformLocation | null;
   private uType: WebGLUniformLocation | null;
   private uJuliaC: WebGLUniformLocation | null;
-  private uPalette: WebGLUniformLocation | null;
+  private uColorA: WebGLUniformLocation | null;
+  private uColorB: WebGLUniformLocation | null;
+  private uAttractorColor: WebGLUniformLocation | null;
   private uShowContours: WebGLUniformLocation | null;
   private uContourStep: WebGLUniformLocation | null;
 
@@ -46,24 +65,33 @@ export class WebGLEscapeRenderer {
     this.uPower = gl.getUniformLocation(this.program, "u_power");
     this.uType = gl.getUniformLocation(this.program, "u_type");
     this.uJuliaC = gl.getUniformLocation(this.program, "u_juliaC");
-    this.uPalette = gl.getUniformLocation(this.program, "u_palette");
+    this.uColorA = gl.getUniformLocation(this.program, "u_colorA");
+    this.uColorB = gl.getUniformLocation(this.program, "u_colorB");
+    this.uAttractorColor = gl.getUniformLocation(
+      this.program,
+      "u_attractorColor",
+    );
     this.uShowContours = gl.getUniformLocation(this.program, "u_showContours");
     this.uContourStep = gl.getUniformLocation(this.program, "u_contourStep");
 
-    this.settings = {
-      type: "mandelbrot",
-      iterations: 200,
-      power: 2,
-      palette: "classic",
-      juliaRe: -0.4,
-      juliaIm: 0.6,
-      showContours: true,
-      contourStep: 5,
-    };
+    this.settings = createEscapeSettings();
   }
 
   setOptions(opts: Partial<EscapeSettings>) {
     this.settings = { ...this.settings, ...opts };
+  }
+
+  private hexToRgb(hex: string): [number, number, number] {
+    const clean = hex.replace("#", "");
+    if (clean.length !== 6) {
+      return [0, 0, 0];
+    }
+
+    const r = parseInt(clean.slice(0, 2), 16) / 255;
+    const g = parseInt(clean.slice(2, 4), 16) / 255;
+    const b = parseInt(clean.slice(4, 6), 16) / 255;
+
+    return [r, g, b];
   }
 
   render(params: {
@@ -84,13 +112,12 @@ export class WebGLEscapeRenderer {
     gl.uniform1i(this.uType, this.settings.type === "mandelbrot" ? 0 : 1);
     gl.uniform2f(this.uJuliaC, this.settings.juliaRe, this.settings.juliaIm);
 
-    const paletteIndex =
-      this.settings.palette === "fire"
-        ? 1
-        : this.settings.palette === "pastel"
-          ? 2
-          : 0;
-    gl.uniform1i(this.uPalette, paletteIndex);
+    gl.uniform3fv(this.uColorA, this.hexToRgb(this.settings.colorA));
+    gl.uniform3fv(this.uColorB, this.hexToRgb(this.settings.colorB));
+    gl.uniform3fv(
+      this.uAttractorColor,
+      this.hexToRgb(this.settings.attractorColor),
+    );
 
     gl.uniform1i(this.uContourStep, this.settings.contourStep || 1);
     gl.uniform1i(this.uShowContours, this.settings.showContours ? 1 : 0);
