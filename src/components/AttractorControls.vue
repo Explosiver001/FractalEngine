@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { computed, watch, toRef } from "vue";
+import { computed, type PropType } from "vue";
 import {
   attractorDefinitions,
-  useAttractor,
+  type AttractorState,
   type AttractorType,
-} from "../composables/useAttractor";
+} from "../attractors";
 
-const { state, setParams, setType, rerollParams } = useAttractor();
+const attractorState = defineModel("state", {
+  type: Object as PropType<AttractorState>,
+  required: true,
+});
 
-const settings = toRef(state);
+const emit = defineEmits<{ (event: "reroll"): void }>();
 
 const attractorOptions = Object.entries(attractorDefinitions).map(
   ([value, def]) => ({
@@ -17,18 +20,8 @@ const attractorOptions = Object.entries(attractorDefinitions).map(
   }),
 );
 
-const selectedTitle = computed(() => attractorDefinitions[settings.value.type].title);
-
-// Sync Vue reactive param changes into the fractal engine
-watch(
-  () => settings.value.params,
-  (params) => setParams({ ...params }),
-  { deep: true },
-);
-
-watch(
-  () => settings.value.type,
-  (type) => setType(type),
+const selectedTitle = computed(
+  () => attractorDefinitions[attractorState.value.type].title,
 );
 </script>
 
@@ -47,7 +40,7 @@ watch(
     <div class="flex flex-col gap-1">
       <label class="text-teal-200/80 font-medium">Typ attractoru</label>
       <select
-        v-model="settings.type"
+        v-model="attractorState.type"
         class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-2 py-2 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition cursor-pointer"
       >
         <option
@@ -64,7 +57,7 @@ watch(
     <div class="flex flex-col gap-1">
       <label class="text-teal-200/80 font-medium">Konstanta a</label>
       <input
-        v-model.number="settings.params.a"
+        v-model.number="attractorState.params.a"
         type="number"
         step="0.05"
         class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-2 py-1 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
@@ -75,7 +68,7 @@ watch(
     <div class="flex flex-col gap-1">
       <label class="text-teal-200/80 font-medium">Konstanta b</label>
       <input
-        v-model.number="settings.params.b"
+        v-model.number="attractorState.params.b"
         type="number"
         step="0.05"
         class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-2 py-1 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
@@ -86,7 +79,7 @@ watch(
     <div class="flex flex-col gap-1">
       <label class="text-teal-200/80 font-medium">Konstanta c</label>
       <input
-        v-model.number="settings.params.c"
+        v-model.number="attractorState.params.c"
         type="number"
         step="0.05"
         class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-2 py-1 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
@@ -97,7 +90,7 @@ watch(
     <div class="flex flex-col gap-1">
       <label class="text-teal-200/80 font-medium">Konstanta d</label>
       <input
-        v-model.number="settings.params.d"
+        v-model.number="attractorState.params.d"
         type="number"
         step="0.05"
         class="w-full bg-gray-800/70 border border-white/10 rounded-lg px-2 py-1 text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-purple-400/70 transition"
@@ -109,12 +102,12 @@ watch(
       <label class="flex justify-between text-teal-200/80 font-medium">
         <span>Iterace</span>
         <span class="text-purple-300">{{
-          settings.iterations.toLocaleString("cs-CZ")
+          attractorState.iterations.toLocaleString("cs-CZ")
         }}</span>
       </label>
 
       <input
-        v-model.number="settings.iterations"
+        v-model.number="attractorState.iterations"
         type="range"
         min="50000"
         max="500000"
@@ -127,11 +120,11 @@ watch(
     <div class="flex flex-col gap-1">
       <label class="flex justify-between text-teal-200/80 font-medium">
         <span>Gamma</span>
-        <span class="text-purple-300">{{ settings.gamma.toFixed(2) }}</span>
+        <span class="text-purple-300">{{ attractorState.gamma.toFixed(2) }}</span>
       </label>
 
       <input
-        v-model.number="settings.gamma"
+        v-model.number="attractorState.gamma"
         type="range"
         min="0.3"
         max="1.5"
@@ -145,12 +138,12 @@ watch(
       <label class="flex justify-between text-teal-200/80 font-medium">
         <span>Jas</span>
         <span class="text-purple-300">{{
-          settings.brightness.toFixed(2)
+          attractorState.brightness.toFixed(2)
         }}</span>
       </label>
 
       <input
-        v-model.number="settings.brightness"
+        v-model.number="attractorState.brightness"
         type="range"
         min="0.5"
         max="3"
@@ -162,7 +155,7 @@ watch(
     <!-- Button -->
     <button
       type="button"
-      @click="rerollParams"
+      @click="emit('reroll')"
       class="w-full py-2 rounded-lg text-black font-semibold shadow-lg bg-gradient-to-r from-teal-400 to-purple-500 hover:opacity-90 transition cursor-pointer"
     >
       Náhodný atraktor

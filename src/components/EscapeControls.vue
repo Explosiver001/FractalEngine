@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import { computed, watch, toRef } from "vue";
-import { useEscape } from "../composables/useEscape";
+import { computed, type PropType } from "vue";
+import type { EscapeSettings } from "../webgl/WebGLEscapeRenderer";
 
-const { state, setOptions, render } = useEscape();
+interface ViewState {
+  centerX: number;
+  centerY: number;
+  scale: number;
+}
 
-const settings = toRef(state.settings);
+const settings = defineModel("settings", {
+  type: Object as PropType<EscapeSettings>,
+  required: true,
+});
 
-const view = computed(() => state.view);
-
-watch(
-  () => settings,
-  (newSettings) => setOptions({ ...newSettings.value }),
-  { deep: true },
-);
-
-watch(
-  () => view.value.scale,
-  () => render(),
-);
+const view = defineModel("view", {
+  type: Object as PropType<ViewState>,
+  required: true,
+});
 
 const globalZoom = computed({
   get: () => 3.0 / view.value.scale,

@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, nextTick } from "vue";
+import { computed, onMounted, ref, watch, nextTick, type PropType } from "vue";
 import {
   attractorDefinitions,
   type AttractorFormula,
-  useAttractor,
-} from "../composables/useAttractor";
+  type AttractorState,
+} from "../attractors";
 
-const { state } = useAttractor();
+const attractorState = defineModel("state", {
+  type: Object as PropType<AttractorState>,
+  required: true,
+});
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const busy = ref(false);
 
-let width = 0;
-let height = 0;
+const width = ref(0);
+const height = ref(0);
 
-// --- KEY FIX: resize bitmap EVERY TIME before rendering ---
+const selectedDefinition = computed(
+  () => attractorDefinitions[attractorState.value.type],
+);
+
 function syncCanvasResolution() {
   const canvas = canvasRef.value;
   if (!canvas) return;
@@ -26,34 +32,32 @@ function syncCanvasResolution() {
   canvas.width = Math.floor(rect.width);
   canvas.height = Math.floor(rect.height);
 
-  width = canvas.width;
-  height = canvas.height;
+  width.value = canvas.width;
+  height.value = canvas.height;
 }
 
 function renderAttractor() {
   const canvas = canvasRef.value;
   if (!canvas) return;
 
-  // FIX: resize BEFORE rendering
   syncCanvasResolution();
 
   const ctx = canvas.getContext("2d");
-  if (!ctx || width === 0 || height === 0) return;
+  if (!ctx || width.value === 0 || height.value === 0) return;
 
   busy.value = true;
 
-  // --- your original code preserved ---
-  const hist = new Float32Array(width * height);
+  const hist = new Float32Array(width.value * height.value);
 
   let x = 0.0;
   let y = 0.0;
 
-  const { a, b, c, d } = state.params;
-  const totalIter = state.iterations;
+  const { a, b, c, d } = attractorState.value.params;
+  const totalIter = attractorState.value.iterations;
   const warmup = 2000;
 
   const nextPoint: AttractorFormula = (currX: number, currY: number) =>
-    attractorDefinitions[state.type].formula(currX, currY, { a, b, c, d });
+    selectedDefinition.value.formula(currX, currY, { a, b, c, d });
 
   let minX = Infinity,
     maxX = -Infinity;
@@ -101,19 +105,19 @@ function renderAttractor() {
     const v = (y - minY) / rangeY;
     if (u < 0 || u > 1 || v < 0 || v > 1) continue;
 
-    const px = Math.floor(u * (width - 1));
-    const py = Math.floor((1 - v) * (height - 1));
+    const px = Math.floor(u * (width.value - 1));
+    const py = Math.floor((1 - v) * (height.value - 1));
 
-    hist[py * width + px] += 1;
+    hist[py * width.value + px] += 1;
   }
 
   let maxVal = 0;
   for (let i = 0; i < hist.length; i++) if (hist[i] > maxVal) maxVal = hist[i];
 
-  const gamma = state.gamma;
-  const brightness = state.brightness;
+  const gamma = attractorState.value.gamma;
+  const brightness = attractorState.value.brightness;
 
-  const image = ctx.createImageData(width, height);
+  const image = ctx.createImageData(width.value, height.value);
   const data = image.data;
 
   function palette(t: number) {
@@ -151,16 +155,7 @@ onMounted(async () => {
   renderAttractor();
 });
 
-watch(
-  () => ({
-    type: state.type,
-    ...state.params,
-    iterations: state.iterations,
-    gamma: state.gamma,
-    brightness: state.brightness,
-  }),
-  () => renderAttractor(),
-);
+watch(attractorState, () => renderAttractor(), { deep: true });
 </script>
 
 <template>

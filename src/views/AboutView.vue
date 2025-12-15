@@ -97,14 +97,16 @@
           </p>
         </section>
 
-        <!-- Strange Attractor -->
+        <!-- Strange Attractors -->
         <section class="space-y-3">
           <h2 class="text-xl font-semibold text-purple-300">
-            Peter de Jong Strange Attractor
+            Chaotické attractory (variace Petera de Jonga)
           </h2>
 
           <p class="text-gray-300">
-            Druhý renderer simuluje dynamický systém podle rovnic:
+            Druhý renderer simuluje několik chaotických systémů – nejen klasický
+            Peter de Jongův atraktor, ale i další trigonometrické varianty –
+            popsaných rovnicemi:
           </p>
 
           <div class="bg-black/40 px-4 py-2 rounded-lg border border-white/10">
@@ -150,6 +152,11 @@
           <h3 class="text-lg font-semibold text-purple-200">Nastavení</h3>
 
           <ul class="list-disc list-inside text-gray-300 space-y-1">
+            <li>
+              <strong>Typ attractoru</strong> - k dispozici je několik variant
+              (sinusové, kosinusové i smíšené mapy), které mění charakter
+              vykreslených oblaků.
+            </li>
             <li>
               <strong
                 >Parametry <code>a</code>, <code>b</code>, <code>c</code>,
