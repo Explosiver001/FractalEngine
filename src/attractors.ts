@@ -1,5 +1,3 @@
-import { reactive } from "vue";
-
 export interface AttractorParams {
   a: number;
   b: number;
@@ -101,52 +99,17 @@ export interface AttractorState {
   brightness: number;
 }
 
-function randomPreset(type: AttractorType): AttractorParams {
+export function randomPreset(type: AttractorType): AttractorParams {
   return attractorDefinitions[type].preset();
 }
 
-const defaultType: AttractorType = "peter-de-jong";
-
-export const attractorState = reactive<AttractorState>({
-  type: defaultType,
-  params: randomPreset(defaultType),
-  iterations: 250_000,
-  gamma: 0.6,
-  brightness: 1.5,
-});
-
-export function useAttractor() {
-  function setParams(p: Partial<AttractorParams>) {
-    const current = attractorState.params;
-    const next = { ...current, ...p };
-
-    // Check if any value changed
-    const changed = Object.keys(next).some(
-      (key) =>
-        next[key as keyof AttractorParams] !==
-        current[key as keyof AttractorParams],
-    );
-
-    if (changed) {
-      attractorState.params = next;
-    }
-  }
-
-  function setType(type: AttractorType) {
-    if (attractorState.type === type) return;
-
-    attractorState.type = type;
-    attractorState.params = randomPreset(type);
-  }
-
-  function rerollParams() {
-    attractorState.params = randomPreset(attractorState.type);
-  }
-
+export function createDefaultAttractorState(): AttractorState {
+  const defaultType: AttractorType = "peter-de-jong";
   return {
-    state: attractorState,
-    setType,
-    setParams,
-    rerollParams,
+    type: defaultType,
+    params: randomPreset(defaultType),
+    iterations: 250_000,
+    gamma: 0.6,
+    brightness: 1.5,
   };
 }

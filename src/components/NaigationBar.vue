@@ -70,7 +70,7 @@ const open = ref(false);
 
 const navItems = [
   { label: "Mandelbrot / Julia", to: { name: "mandelbrot-julia" } },
-  { label: "Strange Attractor", to: { name: "attractor" } },
+  { label: "Strange Attractors", to: { name: "attractors" } },
   { label: "O aplikaci", to: { name: "about" } },
 ];
 </script>
