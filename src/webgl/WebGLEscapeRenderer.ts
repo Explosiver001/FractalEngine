@@ -15,6 +15,23 @@ export interface EscapeSettings {
   contourStep: number;
 }
 
+export const DEFAULT_ESCAPE_SETTINGS: EscapeSettings = {
+  type: "mandelbrot",
+  iterations: 200,
+  power: 2,
+  colorA: "#38bdf8",
+  colorB: "#a855f7",
+  attractorColor: "#0b1021",
+  juliaRe: -0.4,
+  juliaIm: 0.6,
+  showContours: true,
+  contourStep: 5,
+};
+
+export function createEscapeSettings(): EscapeSettings {
+  return { ...DEFAULT_ESCAPE_SETTINGS };
+}
+
 export class WebGLEscapeRenderer {
   private gl: WebGLRenderingContext;
   private program: WebGLProgram;
@@ -57,18 +74,7 @@ export class WebGLEscapeRenderer {
     this.uShowContours = gl.getUniformLocation(this.program, "u_showContours");
     this.uContourStep = gl.getUniformLocation(this.program, "u_contourStep");
 
-    this.settings = {
-      type: "mandelbrot",
-      iterations: 200,
-      power: 2,
-      colorA: "#38bdf8",
-      colorB: "#a855f7",
-      attractorColor: "#0b1021",
-      juliaRe: -0.4,
-      juliaIm: 0.6,
-      showContours: true,
-      contourStep: 5,
-    };
+    this.settings = createEscapeSettings();
   }
 
   setOptions(opts: Partial<EscapeSettings>) {
