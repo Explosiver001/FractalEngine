@@ -13,7 +13,7 @@ import { RouterView } from "vue-router";
       <RouterView class="w-full h-full"></RouterView>
     </div>
     <footer class="w-full py-4 text-center text-sm text-slate-300 border-t border-white/5">
-      © 2025 - Fractal Engine by <strong><a href="www.linkedin.com/in/mnovakdev">Michal Novák</a></strong>. All rights reserved.
+      © 2025 - Fractal Engine by <strong><a href="https://www.linkedin.com/in/mnovakdev">Michal Novák</a></strong>. All rights reserved.
     </footer>
   </main>
 </template>
